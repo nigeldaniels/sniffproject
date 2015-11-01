@@ -18,21 +18,26 @@ class Worker(threading.Thread):
 		plugin(msg)
 
 
+#when you plug in an the ethernet adapter we get the ip of the interface
 def plugin(msg):
-   
     interface =  msg['attrs'][0][1]
     state     =  msg['attrs'][2][1]           
     print interface + ":" + state   
+   
     if state == "UP":
-        ipr = IPRoute()
-        while not ipr.get_addr(lebel=interface): 
-            ipr = IPRoute()
-            ipr.get_addr(label=interface) 
+        while not get_ip(interface): 
             time.sleep(1)
-            print "shit monkey"
-        print ipr.get_addr(label=interface)
+        ip_msg = get_ip(interface)
+        ip_addr =ip_msg[0]['attrs'][1][1]
+        print ip_addr  
 
 # POSIX signal handler to ensure we shutdown cleanly
+
+def get_ip(interface):
+    ipr = IPRoute()
+    return ipr.get_addr(label=interface) 
+    
+
 def handler(signum, frame):
     print "\nShutting down IPDB instance..."
     ip.release()
