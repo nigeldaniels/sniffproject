@@ -33,12 +33,11 @@ def plugin(msg):
         print ip_addr  
 
 
-# POSIX signal handler to ensure we shutdown cleanly
-
 def get_ip(interface):
     ipr = IPRoute()
     return ipr.get_addr(label=interface) 
-    
+
+# POSIX signal handler to ensure we shutdown cleanly   
 
 def handler(signum, frame):
     print "\nShutting down IPDB instance..."
