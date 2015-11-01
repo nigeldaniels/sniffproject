@@ -28,8 +28,10 @@ def plugin(msg):
         while not get_ip(interface): 
             time.sleep(1)
         ip_msg = get_ip(interface)
-        ip_addr =ip_msg[0]['attrs'][1][1]
+        ip_addr = ip_msg[0]['attrs'][1][1]
+        ip_broadcast = ip_msg[0]['attrs'][2][1]
         print ip_addr  
+
 
 # POSIX signal handler to ensure we shutdown cleanly
 
