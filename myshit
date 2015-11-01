@@ -1,5 +1,6 @@
 #!/usr/bin/python2
 
+import socket 
 import Queue
 from pyroute2 import IPDB
 from pyroute2 import IPRoute 
@@ -31,7 +32,50 @@ def plugin(msg):
         ip_addr = ip_msg[0]['attrs'][1][1]
         ip_broadcast = ip_msg[0]['attrs'][2][1]
         print ip_addr  
+        time.sleep(2)
+        simple_tcp_scan(fix_broadcast(ip_broadcast),ip_broadcast) 
 
+def simple_tcp_scan(fixed_broadcast,ip_broadcast):
+    start_host=fixed_broadcast 
+    target_port = 80
+    
+    ip_range = ipRange(fixed_broadcast, ip_broadcast)
+    for ip in ip_range:
+        print ip
+        try:
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((ip,target_port)) 
+            client.send("GET / HTTP/1.1\r\nHost: google.com\r\n\r\n")
+            response = client.recv(4096)
+            print response  
+        except IOError as e: 
+            print "ass"
+
+def ipRange(start_ip, end_ip):
+   start = list(map(int, start_ip.split(".")))
+   end = list(map(int, end_ip.split(".")))
+   temp = start
+   ip_range = []  
+   
+   ip_range.append(start_ip)
+   while temp != end:
+      start[3] += 1
+      for i in (3, 2, 1):
+         if temp[i] == 256:
+            temp[i] = 0
+            temp[i-1] += 1
+      ip_range.append(".".join(map(str, temp))) 
+
+   return ip_range
+
+def fix_broadcast(ip_broadcast):
+    broadcast_array = ip_broadcast.split('.') 
+    for n, octect in enumerate(broadcast_array):
+        if octect == '255': 
+           broadcast_array[n] = '0'
+    broadcast_ip = '.'.join(broadcast_array)
+    return broadcast_ip 
+    
 
 def get_ip(interface):
     ipr = IPRoute()
